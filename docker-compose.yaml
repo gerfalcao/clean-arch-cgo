@@ -14,6 +14,11 @@ services:
     volumes:
       - .docker/mysql:/var/lib/mysql
       - ./sql/migrations/000001_create_orders_table.up.sql:/docker-entrypoint-initdb.d/000001_create_orders_table.up.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -25,3 +30,22 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: ordersystem
+    restart: always
+    ports:
+      - 8000:8000
+      - 50051:50051
+      - 8080:8080
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy

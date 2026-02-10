@@ -12,8 +12,7 @@ A migração roda automaticamente ao subir os containers.
 
 ## Servidor Go
 
-cd cmd/ordersystem
-go run main.go wire_gen.go
+O servidor Go sobe automaticamente com o `docker compose up --build`.
 
 ## Testes
 
